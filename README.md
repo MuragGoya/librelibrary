@@ -1,132 +1,66 @@
-# StellarX Workshop Starter
+# LibreLibrary
 
-A ready-to-run scaffold for a **StellarX workshop**. It gives you a
-working Stellar app on **testnet** so you can spend the workshop bending it toward
-your own idea instead of fighting setup.
+A shared ledger to save books, data, and facts forever.
 
-It covers **both** workshop tracks:
+## Problem
 
-- **Fullstack payments** — a Next.js app: connect Freighter → fund via Friendbot →
-  view XLM/USDC balances → send a payment → confirm on-chain.
-- **Soroban smart contract** — a small Rust contract (a *Savings Goal* tracker)
-  you build, test, deploy with the Stellar CLI, and call from the same frontend.
+People in power erase and change history. The Taliban burns records. In the Philippines, the Marcos family alters facts about their past rule to look good. Groups hide the acts of black soldiers at Pearl Harbor. Christial colonizers rewrite Nordic religion and tradition.
 
-```
-.
-├── web/                      # Next.js 16 + TypeScript + Tailwind frontend
-├── contracts/savings-goal/   # Rust Soroban contract (init / contribute / get_state)
-├── scripts/                  # deploy.ps1 (Windows) / deploy.sh
-├── Cargo.toml                # Rust workspace
-└── CLAUDE.md                 # stack notes + Stellar gotchas (read this!)
-```
+Paper rots when floods or fires hit. Schools and libraries lose their past. Bosses read fake work records. Historians read changed text. We must stop bad actors from hiding the truth. History must not be lst or rewritten.
 
-## Prerequisites
+## How It Works
 
-- **Node.js 20+** and **npm** — for the frontend.
-- **Freighter** browser extension — create a wallet, switch it to **Test Net**.
-- For the contract track: **Rust**, the `wasm32v1-none` target, and the **Stellar CLI**.
+A library, school, or person opens the app.
+They add a text, image, or data file.
+The app makes a unique math code (a hash) from the file.
+The app saves this code and the file name on the chain.
+Later, an employer or historian reads the file.
+They drop the file into our app.
+The app checks the code on the chain.
+If the codes match, the file is real. If someone changed one word or the work comes from a suspicious source, the app flags the file as untrustworthy.
 
-You can run the **payments demo with just Node + Freighter** — Rust/CLI are only
-needed to deploy the Soroban contract.
+## How It Uses Stellar
 
-### Install the contract toolchain (Windows)
+We use Soroban smart contracts to store file codes. We do not store large files on the chain; we store the proof.
 
-Install Rust and the Stellar CLI:
+A school can save thousands of proofs. The network shares the ledger across the world. A local flood cannot wash it away. A bad leader cannot force the network to delete the truth. This solid record deters frodulance in its tracks.
 
-```powershell
-winget install --id Rustlang.Rustup -e --accept-source-agreements --accept-package-agreements
-winget install --id Stellar.StellarCLI -e --accept-source-agreements --accept-package-agreements
-```
+## Track
 
-Then **open a new terminal** (so `cargo`/`stellar` land on PATH) and give Rust a
-working linker — pick one:
+Social Impact
 
-**Easiest — GNU toolchain** (no admin, no large download):
+## Tech Stack
 
-```powershell
-rustup default stable-x86_64-pc-windows-gnu
-rustup target add wasm32v1-none
-```
+* Framework: Next.js
+* Stellar SDK: @stellar/stellar-sdk v12.1.0
+* Network: testnet
+* Tools: soroban-cli
 
-**Or MSVC** (matches Stellar's docs): install the **Visual C++ Build Tools** (the
-"Desktop development with C++" workload), then:
+## Setup & Run
 
-```powershell
-rustup target add wasm32v1-none
-```
+Run these steps to start the app.
 
-> If `cargo` fails with *"linker `link.exe` not found"*, you skipped the step
-> above — use the GNU toolchain or install the Build Tools.
+```bash
+git clone https://github.com/MuragLeo/librelibrary
+cd librelibrary
+npm install
 
-On macOS/Linux: install Rust from <https://rustup.rs>, run
-`rustup target add wasm32v1-none`, and install the Stellar CLI
-(`brew install stellar-cli`).
-
-## 1. Run the frontend (the part that demos immediately)
-
-```powershell
-cd web
-npm install        # already run if you scaffolded via this repo
+# environment variables needed:
+#   NEXT_PUBLIC_SOROBAN_RPC=...
+#   ...
 npm run dev
+
 ```
+## Network Details
+- Network: [testnet / mainnet]
+- RPC URL: [endpoint]
+- Contract IDs: [if any]
+- Asset issuers: [if any]
 
-Open <http://localhost:3000>, then:
+## Team
 
-1. **Connect Freighter** (approve in the extension; make sure it's on Test Net).
-2. **Fund with Friendbot** — your XLM balance jumps to ~10,000.
-3. **Send a payment** to another *existing, funded* testnet account
-   (create one at <https://laboratory.stellar.org/#account-creator?network=test>).
-4. Watch the status go Building → Signing → Submitting → Confirming → Success,
-   then open the **Stellar Expert** link to see it on-chain.
+* Leo Goyena — @MuragLeo
 
-`web/.env.local` is pre-filled with testnet config. `NEXT_PUBLIC_CONTRACT_ID` is
-left empty — the Savings Goal panel shows deploy instructions until you set it.
+## License
 
-## 2. Build, test & deploy the Soroban contract
-
-```powershell
-# from the repo root
-cargo test                 # runs the contract unit tests (no network needed)
-
-# deploy to testnet + auto-wire the contract ID into web/.env.local
-.\scripts\deploy.ps1       # macOS/Linux:  ./scripts/deploy.sh
-```
-
-The deploy script will: create+fund a testnet identity (if needed), run
-`stellar contract build`, deploy, initialise the goal (target `1000`), and write
-`NEXT_PUBLIC_CONTRACT_ID` into `web/.env.local`. **Restart `npm run dev`** and the
-**Savings Goal** panel goes live: it reads on-chain progress and lets a connected
-wallet `contribute` (a real signed Soroban transaction).
-
-### The contract (`contracts/savings-goal/src/lib.rs`)
-
-| Function | Purpose |
-|---|---|
-| `init(target: i128)` | Set the savings target (once). |
-| `contribute(amount: i128) -> i128` | Add to the saved total; returns the new total. |
-| `get_state() -> State` | Read `{ saved, target }`. |
-
-It uses plain integer state (no token transfers) so it's bulletproof in a live
-demo. To make it move real money, swap `contribute` to call the XLM/USDC SAC
-`transfer` and store per-user contributions — see CLAUDE.md for the SAC addresses.
-
-## 3. Make it your idea
-
-This is your *starting point*, not the answer. Pick an idea + track from the
-workshop's 300-ideas list (Philippines remittance / payments / financial
-inclusion themes score well), then reshape the components and the contract.
-Good extension paths: transaction history from Horizon, USDC trustline + send,
-a swap via Soroswap, a price feed via Reflector.
-
-For a fully worked example built on this scaffold, see the **Paluwagan** app in
-`..\Stellar-Workshop-PUP-May-2026-EXAMPLE`.
-
-## Troubleshooting
-
-- **Freighter "not detected"** — install it, reload the page, and confirm it's unlocked.
-- **Payment fails `op_no_destination`** — fund the destination account first.
-- **`tx_bad_auth`** — wrong network passphrase; this app uses `Networks.TESTNET`.
-- **Contract panel can't read state** — make sure you deployed *and* ran `init`,
-  and that `NEXT_PUBLIC_CONTRACT_ID` is set, then restart the dev server.
-
-See **CLAUDE.md** for the full list of Stellar gotchas.
+[MIT / Apache-2.0 / ...]
