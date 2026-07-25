@@ -59,7 +59,7 @@ npm run dev
 
 ## Team
 
-* Leo Goyena — @MuragLeo
+* Leo Goyena — @MuragGoya
 
 ## License
 
